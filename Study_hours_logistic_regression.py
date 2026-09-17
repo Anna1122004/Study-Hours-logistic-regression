@@ -1,6 +1,6 @@
 import streamlit as st
 import joblib
-model = joblib.load("student_result_prediction.pkl")
+model = joblib.load("student_result_prediction(1).pkl")
 st.title("Student Pass / Fail Prediction")
 hours = st.number_input(
     "Enter study hours",
