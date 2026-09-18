@@ -1,16 +1,18 @@
+```python
 import gradio as gr
 import joblib
 import pandas as pd
 import os
 
 # Load model
-model = joblib.load("Student_Std_Hrs.pkl")
+model = joblib.load("studyhour.pkl")
 
 
-def predict_result(study_hours):
+def predict_result(study_hours, attendance):
 
     input_data = pd.DataFrame({
-        "Study_Hours": [study_hours]
+        "Study_Hours": [study_hours],
+        "Attendance": [attendance]
     })
 
     prediction = model.predict(input_data)[0]
@@ -28,15 +30,28 @@ def predict_result(study_hours):
 
 demo = gr.Interface(
     fn=predict_result,
-    inputs=gr.Number(
-        label="Enter Study Hours",
-        minimum=0,
-        maximum=24,
-        value=5
-    ),
+
+    inputs=[
+        gr.Number(
+            label="Enter Study Hours",
+            minimum=0,
+            maximum=24,
+            value=5
+        ),
+
+        gr.Number(
+            label="Enter Attendance (%)",
+            minimum=0,
+            maximum=100,
+            value=50
+        )
+    ],
+
     outputs=gr.Textbox(label="Prediction"),
+
     title="Student Result Prediction",
-    description="Predict Pass or Fail based on Study Hours."
+
+    description="Predict Pass or Fail based on Study Hours and Attendance."
 )
 
 
@@ -45,3 +60,4 @@ if __name__ == "__main__":
         server_name="0.0.0.0",
         server_port=int(os.environ.get("PORT", 7860))
     )
+```
