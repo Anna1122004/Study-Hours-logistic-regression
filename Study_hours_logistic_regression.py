@@ -1,4 +1,4 @@
-```python
+
 import gradio as gr
 import joblib
 
@@ -42,4 +42,3 @@ app = gr.Interface(
 )
 
 app.launch()
-```
