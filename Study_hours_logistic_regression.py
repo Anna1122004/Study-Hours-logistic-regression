@@ -1,47 +1,47 @@
-
 import gradio as gr
 import joblib
+import pandas as pd
+import os
 
-model = joblib.load("studyhour.pkl")
+# Load model
+model = joblib.load("Student_Std_Hrs.pkl")
 
 
-def predict(hours, attendance):
+def predict_result(study_hours):
 
-    prediction = model.predict([[hours, attendance]])
+    input_data = pd.DataFrame({
+        "Study_Hours": [study_hours]
+    })
 
-    probability = model.predict_proba([[hours, attendance]])
+    prediction = model.predict(input_data)[0]
+    probability = model.predict_proba(input_data)[0]
 
-    pass_probability = probability[0][1] * 100
-    fail_probability = probability[0][0] * 100
-
-    if prediction[0] == 1:
-        result = "Student will PASS"
+    if prediction == 1:
+        result = "PASS"
+        confidence = probability[1] * 100
     else:
-        result = "Student will FAIL"
+        result = "FAIL"
+        confidence = probability[0] * 100
 
-    return (
-        result,
-        f"Pass Probability: {pass_probability:.2f}%",
-        f"Fail Probability: {fail_probability:.2f}%"
+    return f"Student Result: {result}\nProbability: {confidence:.2f}%"
+
+
+demo = gr.Interface(
+    fn=predict_result,
+    inputs=gr.Number(
+        label="Enter Study Hours",
+        minimum=0,
+        maximum=24,
+        value=5
+    ),
+    outputs=gr.Textbox(label="Prediction"),
+    title="Student Result Prediction",
+    description="Predict Pass or Fail based on Study Hours."
+)
+
+
+if __name__ == "__main__":
+    demo.launch(
+        server_name="0.0.0.0",
+        server_port=int(os.environ.get("PORT", 7860))
     )
-
-
-app = gr.Interface(
-    fn=predict,
-    inputs=[
-        gr.Number(label="Study Hours", minimum=0, maximum=15, value=5),
-        gr.Number(label="Attendance", minimum=0, maximum=100, value=50)
-    ],
-    outputs=[
-        gr.Textbox(label="Prediction"),
-        gr.Textbox(label="Pass Probability"),
-        gr.Textbox(label="Fail Probability")
-    ],
-    title="Student Pass / Fail Prediction",
-    description="Enter study hours and attendance to predict the student's result."
-)
-
-app.launch(
-    server_name="0.0.0.0",
-    server_port=7860
-)
